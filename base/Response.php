@@ -34,7 +34,7 @@ final class Response
     {
         if ($type == JSON_PHP_VAR)
             $json = json_encode($json);
-        $this->json = $json;
+        $this->json .= '\n' . $json;
     }
 
     public function Sended()

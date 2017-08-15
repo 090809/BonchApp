@@ -11,6 +11,16 @@
 final class Base {
     private $data = array();
 
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        $this->set($name, $value);
+    }
+
     /**
      * @param $key
      * @return mixed|null

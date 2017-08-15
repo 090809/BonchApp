@@ -5,6 +5,7 @@ $P = &$__PARSER;
 
 $_GET = &$__PARSER->GET;
 $_POST = &$__PARSER->POST;
+$_BOTH = &$__PARSER->BOTH;
 
 const MAX_VALUES_PER_ARRAY = 30;
 
@@ -12,11 +13,13 @@ final class Parser {
 
     public $GET        = array();
     public $POST       = array();
-    private $base;
+    public $BOTH       = array();
+    private $base, $log;
 
     function __construct($base)
     {
         $this->base = $base;
+        $this->log  = $base->log;
         $this->loadValues($_GET);
         $this->loadValues($_POST, "POST");
     }
@@ -31,6 +34,11 @@ final class Parser {
         $this->base->set($name, $value);
     }
 
+    public function __invoke($key)
+    {
+        return $this->BOTH[$key];
+    }
+
     private function loadValues($array, $type = "GET")
     {
         $counter = 0;
@@ -41,11 +49,18 @@ final class Parser {
                 /** На самом деле - есть ли ВООБЩЕ смысл трогать post и get запросы? */
                 //На этом моменте уже существует прямой коннект к бд.
                 //Имеет ли смысл пытаться здесь сразу проверить и на экранизацию к бд?
-                $key = htmlspecialchars($key);
-                if ($type == "GET")
-                    $this->GET[$key] = htmlspecialchars($value);
-                else
-                    $this->POST[$key] = htmlspecialchars($value);
+                if ($type == "GET") {
+                    $this->GET[$key] = $this->db->escape($value);
+                    $this->BOTH[$key] = $this->GET[$key];
+                }
+                else {
+                    $this->POST[$key] = $this->db->escape($value);
+                    if (isset($this->BOTH[$key]))
+                    {
+                        ($this->log)("{PARSER:POST}: ключ '$key' уже был установлен. Перезапись.", LOG_WARNING);
+                    }
+                    $this->BOTH[$key] = $this->db->escape($value);
+                }
             }
         }
     }
