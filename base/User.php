@@ -6,24 +6,11 @@
  * Time: 16:34
  */
 const TEN_YEAR = 10*365*24*60*60;
-final class User
+final class User extends Base
 {
-    private $base;
-    public function __construct($base)
+    function init()
     {
-        $this->base = $base;
         session_set_cookie_params(TEN_YEAR);
         session_start();
     }
-
-    public function __get($name)
-    {
-        return $this->base->get($name);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->base->set($name, $value);
-    }
-
 }

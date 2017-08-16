@@ -1,5 +1,5 @@
 <?php
-$__PARSER = new Parser($base);
+$__PARSER = new Parser($registry);
 
 $P = &$__PARSER;
 
@@ -9,29 +9,17 @@ $_BOTH = &$__PARSER->BOTH;
 
 const MAX_VALUES_PER_ARRAY = 30;
 
-final class Parser {
+final class Parser extends Base {
 
     public $GET        = array();
     public $POST       = array();
     public $BOTH       = array();
-    private $base, $log;
+    private $log;
 
-    function __construct($base)
-    {
-        $this->base = $base;
-        $this->log  = $base->log;
+    function init() {
+        $this->log  = $this->registry->log;
         $this->loadValues($_GET);
         $this->loadValues($_POST, "POST");
-    }
-
-    public function __get($name)
-    {
-        return $this->base->get($name);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->base->set($name, $value);
     }
 
     public function __invoke($key)

@@ -10,24 +10,8 @@ const LOG_ERROR         = 0;
 const LOG_WARNING       = 1;
 const LOG_MESSAGE       = 2;
 
-final class Log
+final class Log extends Base
 {
-    private $base;
-    public function __construct($base)
-    {
-        $this->base = $base;
-    }
-
-    public function __set($name, $value)
-    {
-        $this->base->set($name, $value);
-    }
-
-    public function __get($name)
-    {
-        return $this->base->get($name);
-    }
-
     public function __invoke($_text, $type = LOG_MESSAGE)
     {
         $time = date("Y-m-d H:i:s");

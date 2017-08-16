@@ -7,15 +7,13 @@ const RESPONSE_OK                           = 0x00;
 const RESPONSE_BAD_LOGIN                    = 0x01;
 const RESPONSE_ERROR_ON_WORK                = 0x02;
 
-final class Response
+final class Response extends Base
 {
-    private $base;
     private $code, $text, $json;
     private $sended = false;
 
-    function __construct($base)
+    function init()
     {
-        $this->base = $base;
         $this->code = RESPONSE_OK;
         $this->text = "";
     }

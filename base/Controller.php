@@ -7,25 +7,7 @@
  */
 
 //Имеет ли смысл назвать это дело Action?
-final class Controller
+final class Controller extends Base
 {
-    private $base;
-    public function __construct($base)
-    {
-        $this->base = $base;
-    }
 
-    /**
-     * @param name - key
-     * @return mixed|null
-     */
-    public function __get($name)
-    {
-        return $this->base->get($name);
-    }
-
-    public function __set($name, $value)
-    {
-        $this->base->set($name, $value);
-    }
 }
