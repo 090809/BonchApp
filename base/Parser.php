@@ -1,4 +1,7 @@
 <?php
+
+const MAX_VALUES_PER_ARRAY = 30;
+
 $__PARSER = new Parser($registry);
 
 $P = &$__PARSER;
@@ -7,19 +10,18 @@ $_GET = &$__PARSER->GET;
 $_POST = &$__PARSER->POST;
 $_BOTH = &$__PARSER->BOTH;
 
-const MAX_VALUES_PER_ARRAY = 30;
-
+/**
+ * @property DB|null db
+ */
 final class Parser extends Base {
 
     public $GET        = array();
     public $POST       = array();
     public $BOTH       = array();
-    private $log;
 
-    function init() {
-        $this->log  = $this->registry->log;
-        $this->loadValues($_GET);
-        $this->loadValues($_POST, "POST");
+    protected function init() {
+        $this->loadValues($_GET, 'GET');
+        $this->loadValues($_POST, 'POST');
     }
 
     public function __invoke($key)
@@ -27,17 +29,15 @@ final class Parser extends Base {
         return $this->BOTH[$key];
     }
 
-    private function loadValues($array, $type = "GET")
+    private function loadValues($array, $type)
     {
         $counter = 0;
+
+        /** @noinspection ForeachSourceInspection */
         foreach ($array as $key => $value)
         {
             if (++$counter < MAX_VALUES_PER_ARRAY)
-            {
-                /** На самом деле - есть ли ВООБЩЕ смысл трогать post и get запросы? */
-                //На этом моменте уже существует прямой коннект к бд.
-                //Имеет ли смысл пытаться здесь сразу проверить и на экранизацию к бд?
-                if ($type == "GET") {
+                if ($type === 'GET') {
                     $this->GET[$key] = $this->db->escape($value);
                     $this->BOTH[$key] = $this->GET[$key];
                 }
@@ -45,11 +45,10 @@ final class Parser extends Base {
                     $this->POST[$key] = $this->db->escape($value);
                     if (isset($this->BOTH[$key]))
                     {
-                        ($this->log)("{PARSER:POST}: ключ '$key' уже был установлен. Перезапись.", LOG_WARNING);
+                        $this->log->logging("{PARSER:POST}: ключ '$key' уже был установлен. Перезапись.", LOG_WARNING);
                     }
                     $this->BOTH[$key] = $this->db->escape($value);
                 }
-            }
         }
     }
 
@@ -62,18 +61,22 @@ final class Parser extends Base {
     {
         switch ($type)
         {
-            case "GET":
+            case 'GET': {
                 $var = json_decode($this->GET[$key]);
-                if (is_null($var))
-                    return $this->GET[$key];
-                else return $var;
-            case "POST":
+                if (null !== $var) {
+                    return $var;
+                }
+                return $this->GET[$key];
+            } break;
+            case 'POST': {
                 $var = json_decode($this->POST[$key]);
-                if (is_null($var))
-                    return $this->POST[$key];
-                else return $var;
+                if (null !== $var) {
+                    return $var;
+                }
+                return $this->POST[$key];
+            } break;
             default:
-                return "";
+                return '';
         }
     }
 }

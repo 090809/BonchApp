@@ -20,6 +20,11 @@ final class Registry {
     {
         $this->set($name, $value);
     }
+    
+    public function __isset($name)
+    {
+        return $this->has($name);
+    }
 
     /**
      * @param $key
@@ -27,23 +32,25 @@ final class Registry {
      */
     public function get($key)
     {
-        return (isset($this->data[$key]) ? $this->data[$key] : NULL);
+        return ($this->data[$key] ?? NULL);
     }
 
     /**
      * @param $key
      * @param $value
+     * @return mixed $value
      */
     public function set($key, $value)
     {
         $this->data[$key] = $value;
+        return $value;
     }
 
     /**
      * @param $key
      * @return bool
      */
-    public function has($key)
+    public function has($key): bool
     {
         return isset($this->data[$key]);
     }

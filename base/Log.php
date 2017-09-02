@@ -12,24 +12,29 @@ const LOG_MESSAGE       = 2;
 
 final class Log extends Base
 {
-    public function __invoke($_text, $type = LOG_MESSAGE)
+    public function logging($_text, $type = LOG_MESSAGE)
     {
-        $time = date("Y-m-d H:i:s");
+        $time = date('Y-m-d H:i:s');
         $text = "[$time] ";
         switch ($type)
         {
             case LOG_ERROR:
-                $text .= "ERROR: " . $_text;
+                $text .= 'ERROR: ' . $_text;
                 break;
             case LOG_WARNING:
-                $text .= "WARNING: " . $_text;
+                $text .= 'WARNING: ' . $_text;
                 break;
             case LOG_MESSAGE:
-                $text .= "LOG: " . $_text;
+                $text .= 'LOG: ' . $_text;
                 break;
         }
         $this->writeToFile($text);
         $this->writeToJSON($text, $type);
+    }
+
+    public function __invoke($_text, $type = LOG_MESSAGE)
+    {
+        $this->logging($_text, $type);
     }
 
     private function writeToFile($text)
@@ -39,7 +44,7 @@ final class Log extends Base
 
     private function writeToJSON($text, $type)
     {
-        if (DEBUG || $type == LOG_ERROR)
-            $this->response->SetJSON($text, JSON_STRING);
+        if (DEBUG || LOG_ERROR === $type)
+            $this->response->setJson($text);
     }
 }

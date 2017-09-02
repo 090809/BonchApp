@@ -6,53 +6,75 @@
  * Time: 16:34
  */
 
-final class Action
+final class Action extends Base
 {
-    private $base;
     private $file, $class, $func;
+    private $permission;
 
-    public function __construct($base, $file = null, $class = null, $func = null)
+    public function __construct($registry, $file = null, $class = null, $func = null)
     {
+        parent::__construct($registry);
+
         global $_BOTH;
-        $this->base = $base;
-        if ($file != null)
+        //Внешняя (web) или внутренняя (вызов) передача в __конструктор
+        if (null === $file)
         {
-            if (isset($_BOTH['file']) && isset($_BOTH['class']))
+
+            if (isset($_BOTH['file'], $_BOTH['class']))
             {
-                $this->file     = str_replace(array("../", "..", "//"), "", $_BOTH['file']);
+                $this->file     = str_replace(array('../', '..', '//', '\\'), '', $_BOTH['file']);
                 $this->class    = $_BOTH['class'];
-                if (isset($_BOTH['func']) && $_BOTH['func'] != "")
-                    $this->func = $_BOTH['func'];
-                else
-                    $this->func = "index";
+                $this->func = isset($_BOTH['func']) && $_BOTH['func'] !== '' ? $_BOTH['func'] : 'index';
+
+                if (!file_exists(__DIR_MODULES__ . $this->file . '.php'))
+                {
+                    $this->class    = 'NotFound';
+                    $this->file     = 'NotFound';
+                    $this->func     = 'index';
+                }
             }
             else
             {
-                $this->file = "error";
-                $this->class = "error";
-                $this->func = "index";
+                $this->file     = 'NotFound';
+                $this->class    = 'NotFound';
+                $this->func     = 'index';
             }
         }
         else
         {
-            $this->file     = str_replace(array("../", "..", "//"), "", $file);
+            $this->file     = str_replace(array('../', '..', '//', "\\"), '', $file);
             $this->class    = $class;
-            if (isset($func) && $func != "")
-                $this->func = $func;
-            else
-                $this->func = "index";
+            $this->func = isset($func) && $func !== '' ? $func : 'index';
         }
 
-        $this->file = __DIR_MODULES__ . $this->file . ".php";
+        $this->permission = $this->db->query("  SELECT permission
+                                                FROM user_group_permission 
+                                                WHERE file = '$this->file' 
+                                                AND class = '$this->class' 
+                                                AND func = '$this->func'
+                                                LIMIT 0, 1");
+
+        if ($this->permission->num_rows === 0) {
+            $this->permission = USER_GROUP_NONE;
+        } else {
+            $this->permission = $this->permission->row('permission');
+        }
+
+        $this->file = __DIR_MODULES__ . $this->file . '.php';
     }
 
-    public function __get($name)
+    public function getFile()
     {
-        return $this->base->get($name);
+        return $this->file;
     }
 
-    public function __set($name, $value)
+    public function getClass()
     {
-        $this->base->set($name, $value);
+        return $this->class;
+    }
+
+    public function getFunc()
+    {
+        return $this->func;
     }
 }

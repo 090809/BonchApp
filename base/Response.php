@@ -3,39 +3,62 @@
 const JSON_STRING = 1;
 const JSON_PHP_VAR = 2;
 
+//Statement of work
 const RESPONSE_OK                           = 0x00;
-const RESPONSE_BAD_LOGIN                    = 0x01;
-const RESPONSE_ERROR_ON_WORK                = 0x02;
+const RESPONSE_ERROR_ON_WORK                = 0x01;
+const RESPONSE_NOT_FOUND                    = 0x02;
+
+//Statement of User
+const RESPONSE_BAD_LOGIN                    = 0x03;
+const RESPONSE_ALREADY_LOGGED_IN            = 0x04;
+const RESPONSE_NOT_LOGGED_IN                = 0x05;
+const RESPONSE_LOGGED_IN                    = 0x06;
+const RESPONSE_LOGIN_FAILED                 = 0x07;
 
 final class Response extends Base
 {
-    private $code, $text, $json;
+    private $code, $text;
+    private $json = array();
     private $sended = false;
 
-    function init()
+    public function __invoke($ArrayOrCode, $text = '')
     {
-        $this->code = RESPONSE_OK;
-        $this->text = "";
+        if (is_array($ArrayOrCode))
+        {
+            $this->setCode($ArrayOrCode[0]);
+            if (isset($ArrayOrCode[1]))
+                $this->setText($ArrayOrCode[1]);
+        } else {
+            $this->setCode($ArrayOrCode);
+            $this->setText($text);
+        }
+        $this->SendResponse();
     }
 
-    public function SetCode($code)
+    protected function init()
+    {
+        $this->code = RESPONSE_OK;
+        $this->text = '';
+    }
+
+    public function setCode($code)
     {
         $this->code = $code;
     }
 
-    public function SetText($text)
+    public function setText($text)
     {
         $this->text = $text;
     }
 
-    public function SetJson($json, $type = JSON_PHP_VAR)
+    public function setJson($json)
     {
-        if ($type == JSON_PHP_VAR)
-            $json = json_encode($json);
-        $this->json .= '\n' . $json;
+        //if ($type == JSON_PHP_VAR)
+        //    $json = json_encode($json);
+        $this->json[] = $json;
     }
 
-    public function Sended()
+    public function sended()
     {
         return $this->sended;
     }
@@ -44,16 +67,18 @@ final class Response extends Base
      * @return bool true если Ответ отправляется впервые.
      * Иначе возвращает false
      */
-    public function SendResponse()
+    public function SendResponse(): bool
     {
         $response = array(
-            "CODE" => $this->code,
-            "TEXT" => $this->text,
-            "JSON" => $this->json,
+            'CODE' => $this->code,
+            'TEXT' => $this->text,
+            'JSON' => $this->json,
         );
-        if (!$this->sended)
-            echo json_encode($response);
-        else return false;
+        if ($this->sended) {
+            return false;
+        }
+
+        echo json_encode($response);
         $this->sended = true;
         return true;
     }
