@@ -13,9 +13,9 @@ class login extends Base
     {
         if ($this->user->isLoggedIn())
         {
-            $this->Response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_ALREADY_LOGGED_IN);
         } else {
-            $this->Response(RESPONSE_NOT_LOGGED_IN);
+            $this->response(RESPONSE_NOT_LOGGED_IN);
         }
     }
 
@@ -25,9 +25,9 @@ class login extends Base
     public function byHash(): bool
     {
         global $_BOTH;
-        if ($this->user->isLoggedIn())
+        if (!isset($_BOTH['force_login']) && $this->user->isLoggedIn())
         {
-            $this->Response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_ALREADY_LOGGED_IN);
             return true;
         }
 
@@ -35,22 +35,23 @@ class login extends Base
             $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$_BOTH[u_hash]' AND `userdevice_hash` = '$_BOTH[ud_hash]'");
             if ($query->num_rows)
             {
+                $this->user->set('id', $query->row['id']);
                 $this->user->setGroup($query->row['group']);
                 $this->user->setHash($query->row['hash']);
-                $this->Response(RESPONSE_LOGGED_IN);
+                $this->response(RESPONSE_LOGGED_IN);
                 return true;
             }
         }
-        $this->Response(RESPONSE_LOGIN_FAILED, 'Combination of [u_hash] and [ud_hash] not found, try login by UserName');
+        $this->response(RESPONSE_LOGIN_FAILED, 'Combination of [u_hash] and [ud_hash] not found, try login by UserName');
         return false;
     }
 
     public function byPass()
     {
         global $_BOTH;
-        if ($this->user->isLoggedIn())
+        if (!isset($_BOTH['force_login']) && $this->user->isLoggedIn())
         {
-            $this->Response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_ALREADY_LOGGED_IN);
             return true;
         }
 
@@ -61,17 +62,18 @@ class login extends Base
             if ($response->hash)
             {
                 $this->db->query("INSERT INTO `user` (`hash`, `ud_hash`, `group`) VALUES ('$response->hash', '$_BOTH[ud_hash]', '$response->group')");
+                $this->user->set('id', $this->db->getLastId());
                 $this->user->setGroup($response->group);
                 $this->user->setHash($response->hash);
 
                 $json = new stdClass();
                 $json->hash = $response->hash;
                 $this->response->setJson($json);
-                $this->Response(RESPONSE_LOGGED_IN);
+                $this->response(RESPONSE_LOGGED_IN);
                 return true;
             }
         }
-        $this->Response(RESPONSE_LOGIN_FAILED, 'Combination of login-password is wrong, or main Bonch Server Service is down');
+        $this->response(RESPONSE_LOGIN_FAILED, 'Combination of login-password is wrong, or main Bonch Server Service is down');
         return false;
     }
 }

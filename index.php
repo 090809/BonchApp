@@ -1,10 +1,12 @@
 <?php
 //Основное приложение
 //Подключаем основные настройки
-$timer = time();
 const __DIR_INDEX__ = __DIR__;
 require_once 'Configs/config.php';
 require_once 'base/Base.php';
+
+session_set_cookie_params(TEN_YEAR);
+session_start();
 
 //Создаем первый базовый класс - дерево, который будет содержать ссылки на остальные
 require_once 'base/Registry.php';
@@ -33,8 +35,6 @@ try
     require_once 'base/Action.php';
     require_once 'base/Queue.php';
     $registry->set('queue', new Queue($registry));
-
-    if (DEBUG) $log->logging('Ex-timer: ' . (time() - $timer));
     $registry->get('response')->SendResponse();
 }
 //Этот эксепшен - заключительный! Если не было поймано чем-либо еще до этого.

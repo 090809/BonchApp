@@ -10,7 +10,7 @@
  * @property User|null user
  * @property Controller|null controller
  *
- * @method Response($ArrayOrCode, $text = '')
+ * @method response($ArrayOrCode, $text = '')
  */
 abstract class Base
 {

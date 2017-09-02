@@ -21,15 +21,27 @@ final class User extends Base
 {
     private $group = USER_GROUP_NONE;
     private $hash, $logged_in = false;
+    private $data = array();
 
     protected function init()
     {
-        session_set_cookie_params(TEN_YEAR);
-        session_start();
+        foreach ($_SESSION as $name => $value)
+        {
+            switch ($name)
+            {
+                case 'group':
+                    $this->setGroup($value);
+                    break;
+                case 'hash':
+                    $this->hash = $value;
+                    break;
+                default:
+                    $this->set($name, $value);
+                    break;
+            }
+        }
 
-        $this->setGroup(isset($_SESSION['group']) ?? USER_GROUP_NONE);
-        $this->hash = isset($_SESSION['hash']) ?? null;
-        if (null !== $this->hash)
+        if ($this->hash !== null)
             $this->logged_in = true;
     }
 
@@ -65,5 +77,16 @@ final class User extends Base
     {
         $this->hash = $hash;
         $_SESSION['hash'] = $hash;
+    }
+
+    public function set($name, $value)
+    {
+        $this->data[$name]  = $value;
+        $_SESSION[$name]    = $value;
+    }
+
+    public function get($name)
+    {
+        return $this->data[$name];
     }
 }
