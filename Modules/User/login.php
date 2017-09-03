@@ -20,6 +20,7 @@ class login extends Base
     }
 
     /**
+     * desc
      * @return bool
      */
     public function byHash(): bool
@@ -58,10 +59,10 @@ class login extends Base
         if (isset($_BOTH['username'], $_BOTH['password'], $_BOTH['ud_hash']))
         {
             $this->controller->load('curl/curl');
-            $response = json_decode($this->controller_curl->send(BONCH_LOGIN_PAGE, array($_BOTH['username'], $_BOTH['password'])));
+            $response = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, array($_BOTH['username'], $_BOTH['password'])));
             if ($response->hash)
             {
-                $this->db->query("INSERT INTO `user` (`hash`, `ud_hash`, `group`) VALUES ('$response->hash', '$_BOTH[ud_hash]', '$response->group')");
+                $this->db->query("INSERT INTO `user` (`hash`, `userdevice_hash`, `group`) VALUES ('$response->hash', '$_BOTH[ud_hash]', '$response->group')");
                 $this->user->set('id', $this->db->getLastId());
                 $this->user->setGroup($response->group);
                 $this->user->setHash($response->hash);

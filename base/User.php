@@ -12,8 +12,14 @@ const USER_GROUP_STUDENT            = 1 << 2;
 const USER_GROUP_HEAD_STUDENT       = 1 << 3;
 const USER_GROUP_WORKER             = 1 << 4;
 
+const USER_NONE_1                   = 1 << 5;
+const USER_NONE_2                   = 1 << 6;
+const USER_NONE_3                   = 1 << 7;
+const USER_NONE_4                   = 1 << 8;
+const USER_NONE_5                   = 1 << 9;
+
 const USER_GROUP_ADMIN              = 1 << 10;
-const USER_GROUP_FULL_ACCESS        = USER_GROUP_NONE | USER_GROUP_ABITURIENT | USER_GROUP_STUDENT | USER_GROUP_HEAD_STUDENT | USER_GROUP_WORKER | USER_GROUP_ADMIN;
+const USER_GROUP_FULL_ACCESS        = USER_GROUP_ABITURIENT | USER_GROUP_STUDENT | USER_GROUP_HEAD_STUDENT | USER_GROUP_WORKER | USER_GROUP_ADMIN;
 
 const TEN_YEAR = 365 * 24 * 60 * 10 *60;
 
@@ -45,46 +51,75 @@ final class User extends Base
             $this->logged_in = true;
     }
 
+    /**
+     * Description: this function add group to current User.
+     * @param $group
+     */
     public function addGroup($group)
     {
         $this->group |= $group;
         $_SESSION['group'] = $this->group;
     }
 
+    /**
+     * @param $group
+     */
     public function removeGroup($group)
     {
         $this->group &= !$group;
         $_SESSION['group'] = $this->group;
     }
 
+    /**
+     * Description: this function setting up group to current user and save it to session
+     * @param $group
+     */
     public function setGroup($group)
     {
         $this->group = $group;
         $_SESSION['group'] = $this->group;
     }
 
-    public function inGroup($group)
+    /**
+     * @param $group
+     * @return int
+     */
+    public function inGroup($group) : int
     {
         return $this->group & $group;
     }
 
-    public function isLoggedIn()
+    /**
+     * @return bool
+     */
+    public function isLoggedIn() : bool
     {
         return $this->logged_in;
     }
 
+    /**
+     * @param $hash
+     */
     public function setHash($hash)
     {
         $this->hash = $hash;
         $_SESSION['hash'] = $hash;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     */
     public function set($name, $value)
     {
         $this->data[$name]  = $value;
         $_SESSION[$name]    = $value;
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function get($name)
     {
         return $this->data[$name];
