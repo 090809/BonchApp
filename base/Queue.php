@@ -24,13 +24,17 @@ class Queue extends Base
 
                 $this->registry->set('module_' . $Action->getClass(), $o_class);
 
-                if (is_callable(array($o_class, $Action->getFunc()))) {
-                    $o_class->{$Action->getFunc()}();
+                if ($this->user->hasPermission($Action->getFile(), $Action->getFunc())) {
+                    if (is_callable(array($o_class, $Action->getFunc()))) {
+                        $o_class->{$Action->getFunc()}();
+                    } else {
+                        $this->response->setCode(RESPONSE_ERROR_ON_WORK);
+                        $this->response->setText('Callable function not found');
+                        $this->response->SendResponse();
+                        break;
+                    }
                 } else {
-                    $this->response->setCode(RESPONSE_ERROR_ON_WORK);
-                    $this->response->setText('Callable function not found');
-                    $this->response->SendResponse();
-                    break;
+                    $this->response(RESPONSE_USER_ACCESS_DENIED);
                 }
             }
         }

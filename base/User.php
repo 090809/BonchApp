@@ -25,6 +25,7 @@ const TEN_YEAR = 365 * 24 * 60 * 10 *60;
 
 final class User extends Base
 {
+    //Это не студенческая группа, а группа доступа.
     private $group = USER_GROUP_NONE;
     private $hash, $logged_in = false;
     private $data = array();
@@ -125,16 +126,25 @@ final class User extends Base
         return $this->data[$name];
     }
 
+    /**
+     * @param string $file
+     * @param string $func
+     * @return bool
+     */
     public function hasPermission($file, $func = 'index') : bool
     {
         $temp = explode('/', $file);
         $class = $temp[count($temp) - 1];
 
-        return $this->inGroup($this->db->query("   SELECT permission
+        $query = $this->db->query("         SELECT permission
                                                 FROM user_group_permission 
                                                 WHERE file = '$file' 
                                                 AND class = '$class' 
                                                 AND func = '$func'
-                                                LIMIT 0, 1")->row['permission']);
+                                                LIMIT 0, 1");
+        if ($query->num_rows > 0)
+            return $this->inGroup($query->row['permission']);
+
+        return false;
     }
 }

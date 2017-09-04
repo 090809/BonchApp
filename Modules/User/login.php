@@ -20,7 +20,6 @@ class login extends Base
     }
 
     /**
-     * desc
      * @return bool
      */
     public function byHash(): bool

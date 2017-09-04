@@ -36,26 +36,26 @@ final class Log extends Base
             file_put_contents($this->file, "\n\n NEW CONNECTION IN $time \n", FILE_APPEND | LOCK_EX);
     }
 
-    public function logging($_text, $type = LOG_MESSAGE)
+    public function logging($text, $type = LOG_MESSAGE)
     {
         $time = $this->getTime();
-        $text = "[$time] ";
+        $_text = "[$time] ";
         switch ($type)
         {
             case LOG_ERROR:
-                $text .= 'ERROR: ' . $_text;
+                $_text .= 'ERROR: ' . $text;
                 break;
             case LOG_WARNING:
-                $text .= 'WARNING: ' . $_text;
+                $_text .= 'WARNING: ' . $text;
                 break;
             case LOG_MESSAGE:
-                $text .= 'MESSAGE: ' . $_text;
+                $_text .= 'MESSAGE: ' . $text;
                 break;
         }
-        $this->writeToFile($text);
+        $this->writeToFile($_text);
 
         if (DEBUG || LOG_ERROR === $type)
-            $this->writeToJSON($text);
+            $this->writeToJSON($_text);
     }
 
     public function __invoke($_text, $type = LOG_MESSAGE)
@@ -75,10 +75,10 @@ final class Log extends Base
 
     private function getTime() : string
     {
-        list($usec, $sec) = explode(' ', microtime());
+        list($millis, $sec) = explode(' ', microtime());
         $time = date('Y-m-d H:i:s', $sec);
-        $usec = (int)explode('.', $usec)[1];
-        $time .= "::$usec";
+        $millis = (int)explode('.', $millis)[1];
+        $time .= "::$millis";
         return $time;
     }
 }

@@ -18,7 +18,7 @@ const RESPONSE_USER_LOGGED_IN                       = 0x06;
 const RESPONSE_USER_LOGIN_FAILED                    = 0x07;
 const RESPONSE_USER_INFO                            = 0x08;
 const RESPONSE_USER_INFO_GET                        = 0x09;
-const RESPONSE_USER_WRONG_GROUP                     = 0x0A;
+const RESPONSE_USER_ACCESS_DENIED                   = 0x0A;
 
 
 final class Response extends Base
@@ -73,11 +73,13 @@ final class Response extends Base
      */
     public function SendResponse(): bool
     {
-        $response = array(
-            'CODE' => $this->code,
-            'TEXT' => $this->text,
-            'JSON' => $this->json,
-        );
+        $response = array();
+
+        $response['CODE'] = $this->code;
+        $response['JSON'] = $this->json;
+        if (DEBUG)
+            $response['TEXT'] = $this->text;
+
         if ($this->sended) {
             return false;
         }

@@ -18,7 +18,6 @@ final class Action extends Base
         //Внешняя (web) или внутренняя (вызов) передача в __конструктор
         if (null === $file)
         {
-
             if (isset($_BOTH['file']))
             {
                 $this->file     = str_replace(array('../', '..', '//', '\\'), '', $_BOTH['file']);
@@ -50,7 +49,7 @@ final class Action extends Base
         {
             $this->file     = str_replace(array('../', '..', '//', "\\"), '', $file);
             $this->class    = $class;
-            $this->func     = isset($func) && $func !== '' ? $func : 'index';
+            $this->func     = ($func !== null && $func !== '') ? $func : 'index';
         }
 
         $this->file = __DIR_MODULES__ . $this->file . '.php';
