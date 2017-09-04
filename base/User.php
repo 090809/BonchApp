@@ -124,4 +124,17 @@ final class User extends Base
     {
         return $this->data[$name];
     }
+
+    public function hasPermission($file, $func = 'index') : bool
+    {
+        $temp = explode('/', $file);
+        $class = $temp[count($temp) - 1];
+
+        return $this->inGroup($this->db->query("   SELECT permission
+                                                FROM user_group_permission 
+                                                WHERE file = '$file' 
+                                                AND class = '$class' 
+                                                AND func = '$func'
+                                                LIMIT 0, 1")->row['permission']);
+    }
 }

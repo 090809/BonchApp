@@ -9,7 +9,6 @@
 final class Action extends Base
 {
     private $file, $class, $func;
-    private $permission;
 
     public function __construct($registry, $file = null, $class = null, $func = null)
     {
@@ -20,16 +19,23 @@ final class Action extends Base
         if (null === $file)
         {
 
-            if (isset($_BOTH['file'], $_BOTH['class']))
+            if (isset($_BOTH['file']))
             {
                 $this->file     = str_replace(array('../', '..', '//', '\\'), '', $_BOTH['file']);
-                $this->class    = $_BOTH['class'];
+
+                if (isset($_BOTH['class']))
+                    $this->class = $_BOTH['class'];
+                else {
+                    $temp = explode('/', $this->file);
+                    $this->class = $temp[count($temp) - 1];
+                }
+
                 $this->func = isset($_BOTH['func']) && $_BOTH['func'] !== '' ? $_BOTH['func'] : 'index';
 
                 if (!file_exists(__DIR_MODULES__ . $this->file . '.php'))
                 {
-                    $this->class    = 'NotFound';
                     $this->file     = 'NotFound';
+                    $this->class    = 'NotFound';
                     $this->func     = 'index';
                 }
             }
@@ -44,20 +50,7 @@ final class Action extends Base
         {
             $this->file     = str_replace(array('../', '..', '//', "\\"), '', $file);
             $this->class    = $class;
-            $this->func = isset($func) && $func !== '' ? $func : 'index';
-        }
-
-        $this->permission = $this->db->query("  SELECT permission
-                                                FROM user_group_permission 
-                                                WHERE file = '$this->file' 
-                                                AND class = '$this->class' 
-                                                AND func = '$this->func'
-                                                LIMIT 0, 1");
-
-        if ($this->permission->num_rows === 0) {
-            $this->permission = USER_GROUP_NONE;
-        } else {
-            $this->permission = $this->permission->row('permission');
+            $this->func     = isset($func) && $func !== '' ? $func : 'index';
         }
 
         $this->file = __DIR_MODULES__ . $this->file . '.php';

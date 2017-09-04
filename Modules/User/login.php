@@ -13,9 +13,9 @@ class login extends Base
     {
         if ($this->user->isLoggedIn())
         {
-            $this->response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_USER_ALREADY_LOGGED_IN);
         } else {
-            $this->response(RESPONSE_NOT_LOGGED_IN);
+            $this->response(RESPONSE_USER_NOT_LOGGED_IN);
         }
     }
 
@@ -28,7 +28,7 @@ class login extends Base
         global $_BOTH;
         if (!isset($_BOTH['force_login']) && $this->user->isLoggedIn())
         {
-            $this->response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_USER_ALREADY_LOGGED_IN);
             return true;
         }
 
@@ -39,11 +39,11 @@ class login extends Base
                 $this->user->set('id', $query->row['id']);
                 $this->user->setGroup($query->row['group']);
                 $this->user->setHash($query->row['hash']);
-                $this->response(RESPONSE_LOGGED_IN);
+                $this->response(RESPONSE_USER_LOGGED_IN);
                 return true;
             }
         }
-        $this->response(RESPONSE_LOGIN_FAILED, 'Combination of [u_hash] and [ud_hash] not found, try login by UserName');
+        $this->response(RESPONSE_USER_LOGIN_FAILED, 'Combination of [u_hash] and [ud_hash] not found, try login by UserName');
         return false;
     }
 
@@ -52,7 +52,7 @@ class login extends Base
         global $_BOTH;
         if (!isset($_BOTH['force_login']) && $this->user->isLoggedIn())
         {
-            $this->response(RESPONSE_ALREADY_LOGGED_IN);
+            $this->response(RESPONSE_USER_ALREADY_LOGGED_IN);
             return true;
         }
 
@@ -70,11 +70,11 @@ class login extends Base
                 $json = new stdClass();
                 $json->hash = $response->hash;
                 $this->response->setJson($json);
-                $this->response(RESPONSE_LOGGED_IN);
+                $this->response(RESPONSE_USER_LOGGED_IN);
                 return true;
             }
         }
-        $this->response(RESPONSE_LOGIN_FAILED, 'Combination of login-password is wrong, or main Bonch Server Service is down');
+        $this->response(RESPONSE_USER_LOGIN_FAILED, 'Combination of login-password is wrong, or main Bonch Server Service is down');
         return false;
     }
 }

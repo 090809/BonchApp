@@ -6,9 +6,12 @@ enum Codes : byte
     RESPONSE_NOT_FOUND                    = 0x02,
 
     //Statement of User
-    RESPONSE_BAD_LOGIN                    = 0x03,
-    RESPONSE_ALREADY_LOGGED_IN            = 0x04,
-    RESPONSE_NOT_LOGGED_IN                = 0x05,
-    RESPONSE_LOGGED_IN                    = 0x06,
-    RESPONSE_LOGIN_FAILED                 = 0x07,
+    RESPONSE_WORK_BAD_LOGIN                    = 0x03,
+    RESPONSE_WORK_ALREADY_LOGGED_IN            = 0x04,
+    RESPONSE_WORK_NOT_LOGGED_IN                = 0x05,
+    RESPONSE_WORK_LOGGED_IN                    = 0x06,
+    RESPONSE_WORK_LOGIN_FAILED                 = 0x07,
+    RESPONSE_USER_INFO                         = 0x08,
+    RESPONSE_USER_INFO_GET                     = 0x09,
+    RESPONSE_USER_WRONG_GROUP                  = 0x0A,
 }

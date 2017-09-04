@@ -6,16 +6,19 @@ const JSON_PHP_VAR = 2;
 //$__PARSER->ParseAndExecFile(__DIR_INDEX__ . '/help/codes', array('enum', '//', '{', '}'), array( 'RESPONSE' => 'const RESPONSE', ',' => ';') );
 
 //Statement of work
-const RESPONSE_OK                           = 0x00;
-const RESPONSE_ERROR_ON_WORK                = 0x01;
-const RESPONSE_NOT_FOUND                    = 0x02;
+const RESPONSE_OK                                   = 0x00;
+const RESPONSE_ERROR_ON_WORK                        = 0x01;
+const RESPONSE_NOT_FOUND                            = 0x02;
 
 //Statement of User
-const RESPONSE_BAD_LOGIN                    = 0x03;
-const RESPONSE_ALREADY_LOGGED_IN            = 0x04;
-const RESPONSE_NOT_LOGGED_IN                = 0x05;
-const RESPONSE_LOGGED_IN                    = 0x06;
-const RESPONSE_LOGIN_FAILED                 = 0x07;
+const RESPONSE_USER_BAD_LOGIN                       = 0x03;
+const RESPONSE_USER_ALREADY_LOGGED_IN               = 0x04;
+const RESPONSE_USER_NOT_LOGGED_IN                   = 0x05;
+const RESPONSE_USER_LOGGED_IN                       = 0x06;
+const RESPONSE_USER_LOGIN_FAILED                    = 0x07;
+const RESPONSE_USER_INFO                            = 0x08;
+const RESPONSE_USER_INFO_GET                        = 0x09;
+const RESPONSE_USER_WRONG_GROUP                     = 0x0A;
 
 
 final class Response extends Base
