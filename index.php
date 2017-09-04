@@ -17,16 +17,16 @@ require_once 'base/Log.php';
 $log = $registry->set('log', new Log($registry));
 try
 {
-    //Подключаем модуль ответа
-    require_once 'base/Response.php';
-    $registry->set('response', new Response($registry));
-
     require_once 'base/Database.php';
     $registry->set('db', new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE));
 
     //Подключаем модуль Парсинга приходящих данных
     require_once 'base/Parser.php';
     $registry->set('parser', $__PARSER);
+
+    //Подключаем модуль ответа
+    require_once 'base/Response.php';
+    $registry->set('response', new Response($registry));
 
     //Модуль конкретного/группы пользователя
     require_once 'base/User.php';

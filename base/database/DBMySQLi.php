@@ -17,10 +17,15 @@ class DBMySQLi
             throw new ErrorException('Error: Could not make a database link (' . mysqli_connect_errno() . ') ' . mysqli_connect_error());
         }
 
-        $this->link->set_charset("utf8");
+        $this->link->set_charset('utf8');
         $this->link->query("SET SQL_MODE = ''");
     }
 
+    /**
+     * @param $sql
+     * @return bool|stdClass
+     * @throws ErrorException
+     */
     public function query($sql) {
         $query = $this->link->query($sql);
 
@@ -34,7 +39,7 @@ class DBMySQLi
 
                 $result = new stdClass();
                 $result->num_rows = $query->num_rows;
-                $result->row = isset($data[0]) ? $data[0] : array();
+                $result->row = $data[0] ?? array();
                 $result->rows = $data;
 
                 unset($data);
@@ -42,24 +47,27 @@ class DBMySQLi
                 $query->close();
 
                 return $result;
-            } else{
-                return true;
             }
-        } else {
-            throw new ErrorException('Error: ' . $this->link->error . '<br />Error No: ' . $this->link->errno . '<br />' . $sql);
-            //exit();
+
+            return true;
         }
+
+        throw new ErrorException('Error: ' . $this->link->error . '<br />Error No: ' . $this->link->errno . '<br />' . $sql);
+        //exit();
     }
 
-    public function escape($value) {
+    public function escape($value): string
+    {
         return $this->link->real_escape_string($value);
     }
 
-    public function countAffected() {
+    public function countAffected(): int
+    {
         return $this->link->affected_rows;
     }
 
-    public function getLastId() {
+    public function getLastId() : int
+    {
         return $this->link->insert_id;
     }
 

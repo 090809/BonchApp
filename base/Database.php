@@ -4,8 +4,9 @@ final class DB {
     private $driver;
 
     public function __construct($driver, $hostname, $username, $password, $database) {
-        if (file_exists( __DIR__ . "/database/" . $driver . '.php')) {
-            require_once(__DIR__ . "/database/" . $driver . '.php');
+        if (file_exists( __DIR__ . '/database/' . $driver . '.php')) {
+            /** @noinspection PhpIncludeInspection */
+            require_once __DIR__ . '/database/' . $driver . '.php';
         } else {
             exit('Error: Could not load database file ' . $driver . '!');
         }
