@@ -70,7 +70,8 @@ final class Log extends Base
 
     private function writeToJSON($text)
     {
-        $this->response->setJson($text);
+        if ($this->response !== null)
+            $this->response->setJson($text);
     }
 
     private function getTime() : string

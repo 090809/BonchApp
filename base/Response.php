@@ -20,6 +20,8 @@ const RESPONSE_USER_INFO                            = 0x08;
 const RESPONSE_USER_INFO_GET                        = 0x09;
 const RESPONSE_USER_ACCESS_DENIED                   = 0x0A;
 
+//Statement of Study
+const RESPONSE_STUDY_TIMETABLE_BY_DAY               = 0x100;
 
 final class Response extends Base
 {
