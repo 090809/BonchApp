@@ -145,6 +145,6 @@ final class User extends Base
         if ($query->num_rows > 0)
             return $this->inGroup($query->row['permission']);
 
-        return false;
+        return true;
     }
 }

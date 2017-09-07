@@ -5,6 +5,7 @@ const __DIR_INDEX__ = __DIR__;
 require_once 'Configs/config.php';
 require_once 'base/Base.php';
 
+ini_set('session.save_path', $_SERVER['DOCUMENT_ROOT'] .'../sessions/');
 session_set_cookie_params(TEN_YEAR);
 session_start();
 

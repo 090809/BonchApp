@@ -11,7 +11,7 @@ class NotFound extends Base
     public function index()
     {
         $this->response->setCode(RESPONSE_NOT_FOUND);
-        $this->response->setText('File or Class not found');
+        $this->response->setText('Файл или класс не найден');
         $this->response->SendResponse();
     }
 }

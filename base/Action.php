@@ -18,6 +18,7 @@ final class Action extends Base
         //Внешняя (web) или внутренняя (вызов) передача в __конструктор
         if (null === $file)
         {
+
             if (isset($_BOTH['file']))
             {
                 $this->file     = str_replace(array('../', '..', '//', '\\'), '', $_BOTH['file']);

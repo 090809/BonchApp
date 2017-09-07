@@ -9,6 +9,7 @@
 class Queue extends Base
 {
     private $Actions = array();
+
     protected function init()
     {
         $this->Actions[] = new Action($this->registry);
@@ -29,7 +30,7 @@ class Queue extends Base
                         $o_class->{$Action->getFunc()}();
                     } else {
                         $this->response->setCode(RESPONSE_ERROR_ON_WORK);
-                        $this->response->setText('Callable function not found');
+                        $this->response->setText('Вызываемая функция не найдена');
                         $this->response->SendResponse();
                         break;
                     }

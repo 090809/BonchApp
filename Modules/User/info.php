@@ -23,14 +23,14 @@ class info extends Base
     {
         global $_BOTH;
         $this->response->setCode(RESPONSE_USER_INFO_GET);
-        //$this->user->hasPermission('User/info', 'get')
-        if ($this->user->inGroup(USER_GROUP_FULL_ACCESS & !USER_GROUP_LOGGED_IN & !USER_GROUP_STUDENT & !USER_GROUP_ABITURIENT)) {
+        if ($this->user->hasPermission('User/info', 'get')) {
+        //if ($this->user->inGroup(USER_GROUP_FULL_ACCESS & !USER_GROUP_LOGGED_IN & !USER_GROUP_STUDENT & !USER_GROUP_ABITURIENT)) {
             if ($this->user->inGroup(USER_GROUP_HEAD_STUDENT) && !$this->user->get('study_group_id') === $_BOTH['id'])
                 $this->response(RESPONSE_USER_ACCESS_DENIED);
 
             $this->response->setJson($this->getInfoAboutUser($_BOTH['id']));
             $this->response->SendResponse();
-        } else if ($this->user->get('id') === $_BOTH['id']) {
+        } else if ($this->user->get('id') === (int)$_BOTH['id']) {
             $this->response->setJson($this->getInfoAboutUser($_BOTH['id']));
             $this->response->SendResponse();
         } else {

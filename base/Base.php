@@ -17,6 +17,7 @@ abstract class Base
     /* @var $registry Registry */
     protected $registry;
 
+    //Базовая функция
     protected function init() {}
 
     /**
@@ -47,6 +48,8 @@ abstract class Base
 
     public function __get($name)
     {
+        if ($this->log !== null)
+            $this->log->logging("[CALLING] $name");
         return $this->registry->get($name);
     }
 
