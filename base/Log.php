@@ -53,9 +53,7 @@ final class Log extends Base
                 break;
         }
         $this->writeToFile($_text);
-
-        if (DEBUG || LOG_ERROR === $type)
-            $this->writeToJSON($_text);
+        $this->writeToJSON($_text);
     }
 
     public function __invoke($_text, $type = LOG_MESSAGE)
@@ -63,15 +61,21 @@ final class Log extends Base
         $this->logging($_text, $type);
     }
 
+    /**
+     * @param $text
+     */
     private function writeToFile($text)
     {
         file_put_contents($this->file, $text . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
 
+    /**
+     * @param $text
+     */
     private function writeToJSON($text)
     {
         if ($this->response !== null)
-            $this->response->setJson($text);
+            $this->response->setJson($text, true);
     }
 
     private function getTime() : string

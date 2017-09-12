@@ -31,12 +31,17 @@ class login extends Base
             return true;
         }
 
-        if (isset($_BOTH['u_hash'], $_BOTH['ud_hash'])) {
-            $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$_BOTH[u_hash]' AND `userdevice_hash` = '$_BOTH[ud_hash]'");
+        if (isset($_BOTH['force_login']))
+            $this->user->reset();
+
+        if (isset($_BOTH['u_hash'])) {
+            $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+
+            $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$_BOTH[u_hash]' AND `userdevice_hash` = '$ud_hash'");
             if ($query->num_rows)
             {
                 $this->user->set('id', $query->row['id']);
-                $this->user->setGroup($query->row['group']);
+                $this->user->setPermGroup($query->row['group']);
                 $this->user->setHash($query->row['hash']);
                 $this->response(RESPONSE_USER_LOGGED_IN);
                 return true;
@@ -55,16 +60,24 @@ class login extends Base
             return true;
         }
 
-        if (isset($_BOTH['username'], $_BOTH['password'], $_BOTH['ud_hash']))
+        if (isset($_BOTH['force_login']))
+            $this->user->reset();
+
+        if (isset($_BOTH['username'], $_BOTH['password']))
         {
+            $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+
             $this->controller->load('curl/curl');
             $response = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, array($_BOTH['username'], $_BOTH['password'])));
             if ($response->hash)
             {
-                $this->db->query("INSERT INTO `user` (`hash`, `userdevice_hash`, `group`) VALUES ('$response->hash', '$_BOTH[ud_hash]', '$response->group')");
+                $this->db->query("INSERT INTO `user` (`hash`, `userdevice_hash`, `group`) VALUES ('$response->hash', '$ud_hash', '$response->group')");
                 $this->user->set('id', $this->db->getLastId());
-                $this->user->setGroup($response->group);
+                $this->user->setPermGroup($response->group);
                 $this->user->setHash($response->hash);
+
+                //Получение основной информации о пользователе.
+                $this->user->getInfoAboutUser(true);
 
                 $json = new stdClass();
                 $json->hash = $response->hash;

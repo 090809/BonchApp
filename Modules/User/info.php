@@ -13,7 +13,7 @@ class info extends Base
         if ($this->user->isLoggedIn())
         {
             $this->response->setCode(RESPONSE_USER_INFO);
-            $this->response->setJson($this->getInfoAboutUser($this->user->get('id')));
+            $this->response->setJson($this->user->getInfoAboutUser());
         } else {
             $this->response(RESPONSE_USER_NOT_LOGGED_IN);
         }
@@ -25,7 +25,7 @@ class info extends Base
         $this->response->setCode(RESPONSE_USER_INFO_GET);
         if ($this->user->hasPermission('User/info', 'get')) {
         //if ($this->user->inGroup(USER_GROUP_FULL_ACCESS & !USER_GROUP_LOGGED_IN & !USER_GROUP_STUDENT & !USER_GROUP_ABITURIENT)) {
-            if ($this->user->inGroup(USER_GROUP_HEAD_STUDENT) && !$this->user->get('study_group_id') === $_BOTH['id'])
+            if ($this->user->inPermGroup(USER_GROUP_HEAD_STUDENT) && !$this->user->get('study_group_id') === $_BOTH['id'])
                 $this->response(RESPONSE_USER_ACCESS_DENIED);
 
             $this->response->setJson($this->getInfoAboutUser($_BOTH['id']));
@@ -38,8 +38,19 @@ class info extends Base
         }
     }
 
+    public function update()
+    {
+        $this->user->getInfoAboutUser(true);
+    }
+
     private function getInfoAboutUser($id) : array
     {
         return $this->db->query("SELECT (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name, first_name, last_name, birthday FROM user_info WHERE id = '$id'")->row;
+    }
+
+    public function getUDHash()
+    {
+        $this->response->setJson(md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT'])));
+        $this->response(RESPONSE_USER_INFO_GET);
     }
 }

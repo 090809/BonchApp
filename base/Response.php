@@ -25,9 +25,9 @@ const RESPONSE_STUDY_TIMETABLE_BY_DAY               = 0x100;
 
 final class Response extends Base
 {
-    private $code, $text;
-    private $json = array();
-    private $sended = false;
+    private $code, $text, $sended = false,
+            $json = array(),
+            $json_debug = array();
 
     public function __invoke($ArrayOrCode, $text = '')
     {
@@ -59,9 +59,12 @@ final class Response extends Base
         $this->text = $text;
     }
 
-    public function setJson($json)
+    public function setJson($json, $debug = false)
     {
-        $this->json[] = $json;
+        if ($debug)
+            $this->json_debug[] = $json;
+        else
+            $this->json[] = $json;
     }
 
     public function sended()
@@ -79,9 +82,10 @@ final class Response extends Base
 
         $response['CODE'] = $this->code;
         $response['JSON'] = $this->json;
-        if (DEBUG)
+        if (DEBUG || $this->user->get('allow_debug')) {
             $response['TEXT'] = $this->text;
-
+            $response['JSON_DEBUG'] = $this->json_debug;
+        }
         if ($this->sended) {
             return false;
         }

@@ -21,12 +21,10 @@ const USER_NONE_5                   = 1 << 9;
 const USER_GROUP_ADMIN              = 1 << 10;
 const USER_GROUP_FULL_ACCESS        = USER_GROUP_ABITURIENT | USER_GROUP_STUDENT | USER_GROUP_HEAD_STUDENT | USER_GROUP_WORKER | USER_GROUP_ADMIN;
 
-const TEN_YEAR = 365 * 24 * 60 * 10 *60;
-
 final class User extends Base
 {
     //Это не студенческая группа, а группа доступа.
-    private $group = USER_GROUP_NONE;
+    private $perm_group = USER_GROUP_NONE;
     private $hash, $logged_in = false;
     private $data = array();
 
@@ -36,8 +34,8 @@ final class User extends Base
         {
             switch ($name)
             {
-                case 'group':
-                    $this->setGroup($value);
+                case 'perm_group':
+                    $this->setPermGroup($value);
                     break;
                 case 'hash':
                     $this->hash = $value;
@@ -56,38 +54,41 @@ final class User extends Base
      * Description: this function add group to current User.
      * @param $group
      */
-    public function addGroup($group)
+    public function addPermGroup($group)
     {
-        $this->group |= $group;
-        $_SESSION['group'] = $this->group;
+        $this->perm_group |= $group;
+        $_SESSION['perm_group'] = $this->perm_group;
     }
 
     /**
      * @param $group
      */
-    public function removeGroup($group)
+    public function removePermGroup($group)
     {
-        $this->group &= !$group;
-        $_SESSION['group'] = $this->group;
+        $this->perm_group &= !$group;
+        $_SESSION['perm_group'] = $this->perm_group;
     }
 
     /**
      * Description: this function setting up group to current user and save it to session
      * @param $group
      */
-    public function setGroup($group)
+    public function setPermGroup($group)
     {
-        $this->group = $group;
-        $_SESSION['group'] = $this->group;
+        $this->perm_group = $group;
+        $_SESSION['perm_group'] = $this->perm_group;
+
+        if ($group & USER_GROUP_ADMIN)
+            $this->set('allow_debug', true);
     }
 
     /**
      * @param $group
      * @return int
      */
-    public function inGroup($group) : int
+    public function inPermGroup($group) : int
     {
-        return $this->group & $group;
+        return $this->perm_group & $group;
     }
 
     /**
@@ -123,7 +124,9 @@ final class User extends Base
      */
     public function get($name)
     {
-        return $this->data[$name];
+        if (isset($this->data[$name]))
+            return $this->data[$name];
+        return null;
     }
 
     /**
@@ -143,8 +146,39 @@ final class User extends Base
                                                 AND func = '$func'
                                                 LIMIT 0, 1");
         if ($query->num_rows > 0)
-            return $this->inGroup($query->row['permission']);
+            return $this->inPermGroup($query->row['permission']);
 
         return true;
+    }
+
+    public function getInfoAboutUser($forceUpdate = false) : array
+    {
+        if ($forceUpdate || $this->get('study_group_name') === null)
+        {
+            $id = $this->get('id');
+            $array = $this->db->query("SELECT (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name, study_group_id, first_name, last_name, birthday FROM user_info WHERE id = '$id'")->row;
+            foreach ($array as $key => $value)
+                $this->set($key, $value);
+        }
+
+        return array(
+            'perm_group' => $this->perm_group,
+            'study_group_id' => $this->get('study_group_id'),
+            'study_group_name' => $this->get('study_group_name'),
+            'first_name' => $this->get('first_name'),
+            'last_name' => $this->get('last_name'),
+            'birthday' => $this->get('birthday'),
+        );
+    }
+
+    public function reset()
+    {
+        foreach ($_SESSION as $key => $value)
+            unset($_SESSION[$key]);
+    }
+
+    private function calculateUserDeviceHash()
+    {
+        //return
     }
 }
