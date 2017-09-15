@@ -200,8 +200,8 @@ final class User extends Base
 
                 if ($array)
                 {
-                    $this->db->query("INSERT INTO `user_info` (`id`, study_group_id, first_name, last_name, middle_name, birthday) 
-                                                          VALUES ($array[id], $array[study_group_id], $array[first_name], $array[last_name], $array[middle_name], $array[birthday])");
+                    $this->db->query("INSERT INTO `user_info` (`id`, `study_group_id`, `first_name`, `last_name`, `middle_name`, `birthday`)   
+                                                          VALUES ('$array[id]', '$array[study_group_id]', '$array[first_name]', '$array[last_name]', '$array[middle_name]', '$array[birthday]')");
                 }
                 /*else return array(
                     'perm_group' => null,
