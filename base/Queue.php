@@ -25,7 +25,7 @@ class Queue extends Base
 
                 $this->registry->set('module_' . $Action->getClass(), $o_class);
 
-                if ($this->user->hasPermission($Action->getFile(), $Action->getFunc())) {
+                if ($this->user->hasPermission($Action->getModuleFile(), $Action->getFunc())) {
                     if (is_callable(array($o_class, $Action->getFunc()))) {
                         $o_class->{$Action->getFunc()}();
                     } else {

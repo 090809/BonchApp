@@ -41,6 +41,7 @@ class login extends Base
             if ($query->num_rows)
             {
                 $this->user->set('id', $query->row['id']);
+                $this->user->set('ud_hash', $ud_hash);
                 $this->user->setPermGroup($query->row['group']);
                 $this->user->setHash($query->row['hash']);
                 $this->response(RESPONSE_USER_LOGGED_IN);
@@ -100,5 +101,13 @@ class login extends Base
         }
         $this->response(RESPONSE_USER_LOGIN_FAILED, 'Combination of login-password is wrong, or main Bonch Server Service is down');
         return false;
+    }
+
+    public function getUDHash()
+    {
+        var_dump($_SERVER['HTTP_USER_AGENT']);
+        echo '<br>';
+        $this->response->setJson($this->user->calculateUserDeviceHash());
+        $this->response(RESPONSE_OK);
     }
 }

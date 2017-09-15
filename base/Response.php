@@ -5,7 +5,7 @@ const JSON_PHP_VAR = 2;
 
 //$__PARSER->ParseAndExecFile(__DIR_INDEX__ . '/help/codes', array('enum', '//', '{', '}'), array( 'RESPONSE' => 'const RESPONSE', ',' => ';') );
 
-require_once __DIR_INDEX__ . 'System/ResponseCodes.php';
+require_once __DIR_INDEX__ . '/System/ResponseCodes.php';
 
 final class Response extends Base
 {

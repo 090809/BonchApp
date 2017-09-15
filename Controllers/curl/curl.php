@@ -7,6 +7,7 @@
  */
 
 const BONCH_LOGIN_PAGE = 'app.itut.ru';
+const BONCH_USER_INFO = BONCH_LOGIN_PAGE . '/getInfo.php';
 
 class curl extends Base
 {

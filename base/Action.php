@@ -8,7 +8,7 @@
 
 final class Action extends Base
 {
-    private $file, $class, $func;
+    private $file, $class, $func, $moduleFile;
 
     public function __construct($registry, $file = null, $class = null, $func = null)
     {
@@ -52,7 +52,7 @@ final class Action extends Base
             $this->class    = $class;
             $this->func     = ($func !== null && $func !== '') ? $func : 'index';
         }
-
+        $this->moduleFile = $this->file;
         $this->file = __DIR_MODULES__ . $this->file . '.php';
     }
 
@@ -69,5 +69,10 @@ final class Action extends Base
     public function getFunc()
     {
         return $this->func;
+    }
+
+    public function getModuleFile()
+    {
+        return $this->moduleFile;
     }
 }

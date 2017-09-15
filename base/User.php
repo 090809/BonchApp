@@ -46,8 +46,11 @@ final class User extends Base
             }
         }
 
-        if ($this->hash !== null)
+        $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+        if ($this->hash !== null && $ud_hash === $this->get('ud_hash'))
             $this->logged_in = true;
+        else
+            $this->reset();
     }
 
     /**
@@ -148,16 +151,28 @@ final class User extends Base
     {
         $temp = explode('/', $file);
         $class = $temp[count($temp) - 1];
-
         $query = $this->db->query("         SELECT permission
                                                 FROM user_group_permission 
-                                                WHERE file = '$file' 
-                                                AND class = '$class' 
-                                                AND func = '$func'
+                                                WHERE `file` = '$file' 
+                                                AND `class` = '$class' 
+                                                AND `func` = '$func'
                                                 LIMIT 0, 1");
-        if ($query->num_rows > 0)
-            return $this->inPermGroup($query->row['permission']);
 
+        if ($query->num_rows > 0) {
+            if ($this->inPermGroup($query->row['permission']))
+            {
+                return true;
+            }
+            if ($this->isLoggedIn()) {
+                return $this->db->query(" SELECT 1 as allowed
+                                                FROM user_permissions
+                                                WHERE `file` = '$file'
+                                                AND `class` = '$class'
+                                                AND `func` = '$func'
+                                                AND `user_id` = " . $this->get('id') . ' LIMIT 0, 1')->num_rows > 0;
+            }
+            return false;
+        }
         return true;
     }
 
@@ -167,23 +182,35 @@ final class User extends Base
         {
             $id = $this->get('id');
             $array = $this->db->query("SELECT (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name, study_group_id, first_name, last_name, birthday FROM user_info WHERE id = '$id'")->row;
-            if (!count($array))
-            {
+            if (!count($array)) {
                 //Беда печаль пришла нежданно-негадано, нужно прогрузить данные с курла
-                $this->controller->load('curl/curl');
-                $array = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, $this->user->id));
+
+                // @TODO: КУРЛ ФОР ЭВРЕБАДИ ДЕНЦ
+                //$this->controller->load('curl/curl');
+                //$array = json_decode($this->controller_curl->Send(BONCH_USER_INFO, $this->user->id));
+                {
+                    $array = array();
+                    $array['id'] = $id;
+                    $array['study_group_id'] = 1;
+                    $array['first_name'] = 'test_' . $id;
+                    $array['last_name'] = 'test_' . $id;
+                    $array['middle_name'] = 'test_' . $id;
+                    $array['birthday'] = '1970-01-01';
+                }
+
                 if ($array)
                 {
                     $this->db->query("INSERT INTO `user_info` (`id`, study_group_id, first_name, last_name, middle_name, birthday) 
                                                           VALUES ($array[id], $array[study_group_id], $array[first_name], $array[last_name], $array[middle_name], $array[birthday])");
-                } else return array(
+                }
+                /*else return array(
                     'perm_group' => null,
                     'study_group_id' => null,
                     'study_group_name' => '',
                     'first_name' => '',
                     'last_name' => '',
                     'birthday' => null,
-                );
+                );*/
             }
             foreach ($array as $key => $value)
                 $this->set($key, $value);
@@ -205,8 +232,8 @@ final class User extends Base
             unset($_SESSION[$key]);
     }
 
-    private function calculateUserDeviceHash()
+    public function calculateUserDeviceHash() : string
     {
-        //return
+        return md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
     }
 }
