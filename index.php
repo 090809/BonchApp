@@ -43,3 +43,5 @@ catch (Exception $exception)
     if (DEBUG) $response->SetText($exception->getMessage());
     $response->SendResponse();
 }
+
+//another test comment

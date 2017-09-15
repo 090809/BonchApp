@@ -1,5 +1,6 @@
 <?php
 
+/** @noinspection AutoloadingIssuesInspection */
 final class DB {
     private $driver;
 

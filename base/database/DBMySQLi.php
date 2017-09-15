@@ -30,7 +30,7 @@ class DBMySQLi
         $query = $this->link->query($sql);
 
         if (!$this->link->errno){
-            if (isset($query->num_rows)) {
+            if ($query->num_rows !== null) {
                 $data = array();
 
                 while ($row = $query->fetch_assoc()) {
