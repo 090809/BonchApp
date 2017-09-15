@@ -79,10 +79,14 @@ class login extends Base
 
             if ($response->hash)
             {
+                //@TODO: Необходимо сопоставлять ЧЕЛОВЕКА и ДАННЫЕ ВХОДА!
+                //$user_info_id = $response->id;
                 $this->db->query("INSERT INTO `user` (`hash`, `userdevice_hash`, `group`) VALUES ('$response->hash', '$ud_hash', '$response->group')");
+
                 $this->user->set('id', $this->db->getLastId());
                 $this->user->setPermGroup($response->group);
                 $this->user->setHash($response->hash);
+
 
                 //Получение основной информации о пользователе.
                 $this->user->getInfoAboutUser(true);

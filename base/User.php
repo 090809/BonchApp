@@ -129,6 +129,16 @@ final class User extends Base
         return null;
     }
 
+    public function __get($name)
+    {
+        return $this->get($name) ?? parent::__get($name);
+    }
+
+    public function __set($name, $value)
+    {
+        $this->set($name, $value);
+    }
+
     /**
      * @param string $file
      * @param string $func
@@ -157,6 +167,24 @@ final class User extends Base
         {
             $id = $this->get('id');
             $array = $this->db->query("SELECT (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name, study_group_id, first_name, last_name, birthday FROM user_info WHERE id = '$id'")->row;
+            if (!count($array))
+            {
+                //Беда печаль пришла нежданно-негадано, нужно прогрузить данные с курла
+                $this->controller->load('curl/curl');
+                $array = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, $this->user->id));
+                if ($array)
+                {
+                    $this->db->query("INSERT INTO `user_info` (`id`, study_group_id, first_name, last_name, middle_name, birthday) 
+                                                          VALUES ($array[id], $array[study_group_id], $array[first_name], $array[last_name], $array[middle_name], $array[birthday])");
+                } else return array(
+                    'perm_group' => null,
+                    'study_group_id' => null,
+                    'study_group_name' => '',
+                    'first_name' => '',
+                    'last_name' => '',
+                    'birthday' => null,
+                );
+            }
             foreach ($array as $key => $value)
                 $this->set($key, $value);
         }
