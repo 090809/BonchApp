@@ -67,8 +67,16 @@ class login extends Base
         {
             $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
 
-            $this->controller->load('curl/curl');
-            $response = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, array($_BOTH['username'], $_BOTH['password'])));
+            //@TODO: Сходить в АСУ и выбить из них коннект для базы.
+            //$this->controller->load('curl/curl');
+            //$response = json_decode($this->controller_curl->Send(BONCH_LOGIN_PAGE, array($_BOTH['username'], $_BOTH['password'])));
+
+            {
+                $response = new stdClass();
+                $response->hash = md5('..' . md5("$_BOTH[username] .. $_BOTH[password]"));
+                $response->group = USER_GROUP_FULL_ACCESS;
+            }
+
             if ($response->hash)
             {
                 $this->db->query("INSERT INTO `user` (`hash`, `userdevice_hash`, `group`) VALUES ('$response->hash', '$ud_hash', '$response->group')");
