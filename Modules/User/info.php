@@ -50,7 +50,9 @@ class info extends Base
 
     public function getUDHash()
     {
-        $this->response->setJson(md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT'])));
+        var_dump($_SERVER['HTTP_USER_AGENT']);
+        echo '<br>';
+        $this->response->setJson($this->user->calculateUserDeviceHash());
         $this->response(RESPONSE_USER_INFO_GET);
     }
 }
