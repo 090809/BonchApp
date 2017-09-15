@@ -46,7 +46,7 @@ final class User extends Base
             }
         }
 
-        $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+        $ud_hash = $this->calculateUserDeviceHash();
         if ($this->hash !== null && $ud_hash === $this->get('ud_hash'))
             $this->logged_in = true;
         else

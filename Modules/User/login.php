@@ -35,7 +35,7 @@ class login extends Base
             $this->user->reset();
 
         if (isset($_BOTH['u_hash'])) {
-            $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+            $ud_hash = $this->user->calculateUserDeviceHash();
 
             $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$_BOTH[u_hash]' AND `userdevice_hash` = '$ud_hash'");
             if ($query->num_rows)
@@ -66,7 +66,7 @@ class login extends Base
 
         if (isset($_BOTH['username'], $_BOTH['password']))
         {
-            $ud_hash = md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+            $ud_hash = $this->user->calculateUserDeviceHash();
 
             //@TODO: Сходить в АСУ и выбить из них коннект для базы.
             //$this->controller->load('curl/curl');
