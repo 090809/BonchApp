@@ -27,7 +27,11 @@ final class timetable extends Base
 
     private function getTimetable(string $day) : array
     {
-        $group_id = $this->user->get('study_group_id');
+        $group_id = $this->user->get('study_groups');
+
+        if (is_array($group_id))
+            $group_id = implode(',', $group_id);
+
         return $this->db->query("
           SELECT  lesson_number, 
                   (SELECT lesson_name FROM study_lesson WHERE lesson_id = id) as lesson_name, 
@@ -36,10 +40,8 @@ final class timetable extends Base
                   lecture_hall
           FROM study_timetable 
           WHERE `date` = '$day' AND 
-                academical_group = '$group_id'
+                academical_group IN ('$group_id')
           ORDER BY lesson_number ASC
         ")->rows;
     }
 }
-
-//http://bonch.app/?file=study/timetable @TODO: сделать проверку на логинку здесь

@@ -23,7 +23,7 @@ try
 
     //Подключаем модуль ответа
     require_once 'base/Response.php';
-    $registry->set('response', new Response($registry));
+    $response = $registry->set('response', new Response($registry));
 
     //Модуль конкретного/группы пользователя
     require_once 'base/User.php';
@@ -32,7 +32,8 @@ try
     require_once 'base/Action.php';
     require_once 'base/Queue.php';
     $registry->set('queue', new Queue($registry));
-    $registry->get('response')->SendResponse();
+    $response->SetCode(RESPONSE_OK);
+    $response->SendResponse();
 }
 //Этот эксепшен - заключительный! Если не было поймано чем-либо еще до этого.
 //TODO: Включать дебаг мод только у определенных пользователей.

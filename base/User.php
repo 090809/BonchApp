@@ -176,12 +176,12 @@ final class User extends Base
         return true;
     }
 
-    public function getInfoAboutUser($forceUpdate = false) : array
+    public function getOrUpdateInfoAboutUser($forceUpdate = false) : array
     {
         if ($forceUpdate || $this->get('study_group_name') === null)
         {
             $id = $this->get('id');
-            $array = $this->db->query("SELECT (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name, study_group_id, first_name, last_name, birthday FROM user_info WHERE id = '$id'")->row;
+            $array = $this->getInfoAboutUser($id);
             if (!count($array)) {
                 //Беда печаль пришла нежданно-негадано, нужно прогрузить данные с курла
 
@@ -200,8 +200,11 @@ final class User extends Base
 
                 if ($array)
                 {
-                    $this->db->query("INSERT INTO `user_info` (`id`, `study_group_id`, `first_name`, `last_name`, `middle_name`, `birthday`)   
-                                                          VALUES ('$array[id]', '$array[study_group_id]', '$array[first_name]', '$array[last_name]', '$array[middle_name]', '$array[birthday]')");
+                    $this->db->query("INSERT INTO `user_info` (`id`, `first_name`, `last_name`, `middle_name`, `birthday`)   
+                                                          VALUES ('$array[id]', '$array[first_name]', '$array[last_name]', '$array[middle_name]', '$array[birthday]')");
+                    if (is_array($array['study_group_id']))
+                        foreach ($array['study_group_id'] as $value)
+                            $this->db->query("INSERT INTO `user_academical_group` VALUES ('$array[id]', '$value')");
                 }
                 /*else return array(
                     'perm_group' => null,
@@ -212,6 +215,7 @@ final class User extends Base
                     'birthday' => null,
                 );*/
             }
+
             foreach ($array as $key => $value)
                 $this->set($key, $value);
         }
@@ -224,6 +228,20 @@ final class User extends Base
             'last_name' => $this->get('last_name'),
             'birthday' => $this->get('birthday'),
         );
+    }
+
+    public function getInfoAboutUser($id = null)
+    {
+        if ($id === null)
+            $id = $this->get('id');
+        return $this->db->query("
+                  SELECT   (SELECT academical_group_id FROM user_academical_groups WHERE `primary` = 1 AND user_id = `user_info`.id) as `study_group_id`,
+                           (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name,            
+                        first_name, 
+                        last_name, 
+                        birthday 
+                  FROM user_info 
+                  WHERE `user_info`.id = '$id'")->row;
     }
 
     public function reset()
