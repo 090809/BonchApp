@@ -10,7 +10,7 @@ final class timetable extends Base
 {
     public function index()
     {
-        $this->byDay(date('Y-m-d', strtotime('today')));
+        $this->byDay();
     }
 
     public function byDay($day = null)
@@ -27,11 +27,11 @@ final class timetable extends Base
 
     private function getTimetable(string $day) : array
     {
-        $group_id = $this->user->get('study_groups');
+        $group_id = $this->user->getUserAcademicalGroups();
 
-        if (is_array($group_id))
+        if (is_array($group_id)) {
             $group_id = implode(',', $group_id);
-
+        }
         return $this->db->query("
           SELECT  lesson_number, 
                   (SELECT lesson_name FROM study_lesson WHERE lesson_id = id) as lesson_name, 

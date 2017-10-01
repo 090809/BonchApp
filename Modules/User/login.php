@@ -20,11 +20,15 @@ class login extends Base
     }
 
     /**
+     * @param null|string $hash
      * @return bool
      */
-    public function byHash(): bool
+    public function byHash($hash = null): bool
     {
         global $_BOTH;
+        if (!$hash)
+            $hash = $_BOTH['u_hash'];
+
         if (!isset($_BOTH['force_login']) && $this->user->isLoggedIn())
         {
             $this->response(RESPONSE_USER_ALREADY_LOGGED_IN);
@@ -37,7 +41,7 @@ class login extends Base
         if (isset($_BOTH['u_hash'])) {
             $ud_hash = $this->user->calculateUserDeviceHash();
 
-            $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$_BOTH[u_hash]' AND `userdevice_hash` = '$ud_hash'");
+            $query = $this->db->query("SELECT * FROM `user` WHERE `hash` = '$hash' AND `userdevice_hash` = '$ud_hash'");
             if ($query->num_rows)
             {
                 $this->user->set('id', $query->row['id']);
@@ -83,9 +87,11 @@ class login extends Base
                 //@TODO: Необходимо сопоставлять ЧЕЛОВЕКА и ДАННЫЕ ВХОДА!
                 //$user_info_id = $response->id;
 
+                $this->db->query("DELETE FROM `user` WHERE `hash` = $response->hash AND `userdevice_hash` = $ud_hash");
                 $this->db->query("INSERT INTO `user` (`name`, `hash`, `userdevice_hash`, `group`) VALUES ('$_BOTH[username]', '$response->hash', '$ud_hash', '$response->group')");
 
                 $this->user->set('id', $this->db->getLastId());
+                $this->user->set('ud_hash', $ud_hash);
                 $this->user->setPermGroup($response->group);
                 $this->user->setHash($response->hash);
 

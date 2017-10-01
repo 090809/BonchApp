@@ -39,6 +39,9 @@ final class Log extends Base
     public function logging($text, $type = LOG_MESSAGE)
     {
         $time = $this->getTime();
+        if (is_array($text) || is_object($text))
+            $text = json_encode($text);
+
         $_text = "[$time] ";
         switch ($type)
         {

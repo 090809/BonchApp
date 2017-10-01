@@ -27,6 +27,7 @@ final class User extends Base
     private $perm_group = USER_GROUP_NONE;
     private $hash, $logged_in = false;
     private $data = array();
+    private $id;
 
     protected function init()
     {
@@ -34,6 +35,9 @@ final class User extends Base
         {
             switch ($name)
             {
+                case 'id':
+                    $this->id = $value;
+                    break;
                 case 'perm_group':
                     $this->setPermGroup($value);
                     break;
@@ -51,6 +55,7 @@ final class User extends Base
             $this->logged_in = true;
         else
             $this->reset();
+        $this->log->logging(['info' => $this->getOrUpdateInfoAboutUser()]);
     }
 
     /**
@@ -169,7 +174,7 @@ final class User extends Base
                                                 WHERE `file` = '$file'
                                                 AND `class` = '$class'
                                                 AND `func` = '$func'
-                                                AND `user_id` = " . $this->get('id') . ' LIMIT 0, 1')->num_rows > 0;
+                                                AND `user_id` = " . $this->id . ' LIMIT 0, 1')->num_rows > 0;
             }
             return false;
         }
@@ -180,7 +185,7 @@ final class User extends Base
     {
         if ($forceUpdate || $this->get('study_group_name') === null)
         {
-            $id = $this->get('id');
+            $id = $this->id;
             $array = $this->getInfoAboutUser($id);
             if (!count($array)) {
                 //Беда печаль пришла нежданно-негадано, нужно прогрузить данные с курла
@@ -191,7 +196,8 @@ final class User extends Base
                 {
                     $array = array();
                     $array['id'] = $id;
-                    $array['study_group_id'] = 1;
+                    $array['study_group_id'] = array('1');
+                    $array['primary_study_group'] = 1;
                     $array['first_name'] = 'test_' . $id;
                     $array['last_name'] = 'test_' . $id;
                     $array['middle_name'] = 'test_' . $id;
@@ -204,7 +210,10 @@ final class User extends Base
                                                           VALUES ('$array[id]', '$array[first_name]', '$array[last_name]', '$array[middle_name]', '$array[birthday]')");
                     if (is_array($array['study_group_id']))
                         foreach ($array['study_group_id'] as $value)
-                            $this->db->query("INSERT INTO `user_academical_group` VALUES ('$array[id]', '$value')");
+                            $this->db->query("INSERT INTO `user_academical_groups` VALUES ('$array[id]', '$value', 0)");
+
+                    $this->db->query("UPDATE `user_academical_groups` SET `primary` = 1 WHERE user_id = $id AND academical_group_id = $array[primary_study_group]");
+
                 }
                 /*else return array(
                     'perm_group' => null,
@@ -233,7 +242,7 @@ final class User extends Base
     public function getInfoAboutUser($id = null)
     {
         if ($id === null)
-            $id = $this->get('id');
+            $id = $this->id;
         return $this->db->query("
                   SELECT   (SELECT academical_group_id FROM user_academical_groups WHERE `primary` = 1 AND user_id = `user_info`.id) as `study_group_id`,
                            (SELECT study_group_name FROM user_study_group WHERE study_group_id = id) as study_group_name,            
@@ -242,6 +251,18 @@ final class User extends Base
                         birthday 
                   FROM user_info 
                   WHERE `user_info`.id = '$id'")->row;
+    }
+
+    public function getUserAcademicalGroups($id = null)
+    {
+        if ($id === null)
+            $id = $this->id;
+        $agi_rows = $this->db->query("SELECT academical_group_id FROM user_academical_groups WHERE user_id = $id")->rows;
+        $agi = array();
+        foreach ($agi_rows as $value)
+            $agi[] = $value['academical_group_id'];
+
+        return $agi;
     }
 
     public function reset()
@@ -253,5 +274,10 @@ final class User extends Base
     public function calculateUserDeviceHash() : string
     {
         return md5('amma-static-salt' . base64_encode($_SERVER['HTTP_USER_AGENT']));
+    }
+
+    public function getId() : int
+    {
+        return $this->id;
     }
 }

@@ -23,7 +23,7 @@ class info extends Base
     {
         global $_BOTH;
         $this->response->setCode(RESPONSE_USER_INFO_GET);
-        if ($this->user->get('id') === $_BOTH['id']) {
+        if ($this->user->getId() === $_BOTH['id']) {
             $this->response->setJson($this->user->getOrUpdateInfoAboutUser());
             $this->response->SendResponse();
         } else if ($this->user->hasPermission('User/info', 'get')) {

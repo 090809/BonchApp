@@ -15,7 +15,7 @@ $log = $registry->set('log', new Log($registry));
 try
 {
     require_once 'base/Database.php';
-    $registry->set('db', new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE));
+    $registry->set('db', new DB(DB_DRIVER, DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE, $registry));
 
     //Подключаем модуль Парсинга приходящих данных
     require_once 'base/Parser.php';
